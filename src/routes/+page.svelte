@@ -1,26 +1,8 @@
 <script lang="ts">
-    import "$lib/fonts.css?inline";
-
     import { onMount } from "svelte";
 	import InputDay from "../components/InputDay.svelte";
     import type { InputDayEvent } from "$lib/InputDayEvent";
     import { Button, ButtonGroup, Col, Container, FormGroup, Input, Label, Row } from "sveltestrap";
-
-    import imgBase from "$lib/images/base.png";
-    import imgOnlineMonday from "$lib/images/online/monday.png";
-    import imgOnlineTuesday from "$lib/images/online/tuesday.png";
-    import imgOnlineWednesday from "$lib/images/online/wednesday.png";
-    import imgOnlineThursday from "$lib/images/online/thursday.png";
-    import imgOnlineFriday from "$lib/images/online/friday.png";
-    import imgOnlineSaturday from "$lib/images/online/saturday.png";
-    import imgOnlineSunday from "$lib/images/online/sunday.png";
-    import imgOfflineMonday from "$lib/images/offline/monday.png";
-    import imgOfflineTuesday from "$lib/images/offline/tuesday.png";
-    import imgOfflineWednesday from "$lib/images/offline/wednesday.png";
-    import imgOfflineThursday from "$lib/images/offline/thursday.png";
-    import imgOfflineFriday from "$lib/images/offline/friday.png";
-    import imgOfflineSaturday from "$lib/images/offline/saturday.png";
-    import imgOfflineSunday from "$lib/images/offline/sunday.png";
 
     let imgElemBase: HTMLImageElement;
 
@@ -63,8 +45,8 @@
             online: true,
             coords: [1192, 78],
             titleCharSpacing: sampleTitleCharSpacing,
-            imgOnline: imgOnlineMonday,
-            imgOffline: imgOfflineMonday,
+            imgOnline: 'images/online/monday.png',
+            imgOffline: 'images/offline/monday.png',
             imgElemOnline: null,
             imgElemOffline: null
         },
@@ -77,8 +59,8 @@
             online: true,
             coords: [1160, 221],
             titleCharSpacing: sampleTitleCharSpacing,
-            imgOnline: imgOnlineTuesday,
-            imgOffline: imgOfflineTuesday,
+            imgOnline: 'images/online/tuesday.png',
+            imgOffline: 'images/offline/tuesday.png',
             imgElemOnline: null,
             imgElemOffline: null
         },
@@ -91,8 +73,8 @@
             online: true,
             coords: [1128, 363],
             titleCharSpacing: sampleTitleCharSpacing,
-            imgOnline: imgOnlineWednesday,
-            imgOffline: imgOfflineWednesday,
+            imgOnline: 'images/online/wednesday.png',
+            imgOffline: 'images/offline/wednesday.png',
             imgElemOnline: null,
             imgElemOffline: null
         },
@@ -105,8 +87,8 @@
             online: true,
             coords: [1096, 505],
             titleCharSpacing: sampleTitleCharSpacing,
-            imgOnline: imgOnlineThursday,
-            imgOffline: imgOfflineThursday,
+            imgOnline: 'images/online/thursday.png',
+            imgOffline: 'images/offline/thursday.png',
             imgElemOnline: null,
             imgElemOffline: null
         },
@@ -119,8 +101,8 @@
             online: true,
             coords: [1065, 648],
             titleCharSpacing: sampleTitleCharSpacing,
-            imgOnline: imgOnlineFriday,
-            imgOffline: imgOfflineFriday,
+            imgOnline: 'images/online/friday.png',
+            imgOffline: 'images/offline/friday.png',
             imgElemOnline: null,
             imgElemOffline: null
         },
@@ -133,8 +115,8 @@
             online: true,
             coords: [1034, 789],
             titleCharSpacing: sampleTitleCharSpacing,
-            imgOnline: imgOnlineSaturday,
-            imgOffline: imgOfflineSaturday,
+            imgOnline: 'images/online/saturday.png',
+            imgOffline: 'images/offline/saturday.png',
             imgElemOnline: null,
             imgElemOffline: null
         },
@@ -147,8 +129,8 @@
             online: true,
             coords: [1004, 933],
             titleCharSpacing: sampleTitleCharSpacing,
-            imgOnline: imgOnlineSunday,
-            imgOffline: imgOfflineSunday,
+            imgOnline: 'images/online/sunday.png',
+            imgOffline: 'images/offline/sunday.png',
             imgElemOnline: null,
             imgElemOffline: null
         }
@@ -364,7 +346,7 @@
 </Row>
 
 <div class="assets">
-    <img src="{imgBase}" bind:this={imgElemBase} alt="NeuroSchedule Base" width="1920px" height="1080px">
+    <img src="images/base.png" bind:this={imgElemBase} alt="NeuroSchedule Base" width="1920px" height="1080px">
     {#each daysOfWeek as day}
         <img src="{day.imgOnline}" bind:this={day.imgElemOnline} alt="NeuroSchedule Online {day.name}">
         <img src="{day.imgOffline}" bind:this={day.imgElemOffline} alt="NeuroSchedule Offline {day.name}">

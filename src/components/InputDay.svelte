@@ -1,11 +1,12 @@
 <script lang="ts">
-  import type { InputDayEvent } from "$lib/InputDayEvent";
+    import type { InputDayEvent } from "$lib/InputDayEvent";
     import { createEventDispatcher } from "svelte";
+    import { Card, CardBody, CardHeader, CardTitle, Col, FormGroup, Input, Label, Row } from "sveltestrap";
 
     export const dispatch = createEventDispatcher();
 
     export let day = '';
-    export let defaultOnline: boolean;
+    export let online: boolean;
 
     function handleChange(event: any) {
         const message: Partial<InputDayEvent> = { day }
@@ -32,23 +33,19 @@
     }
 </script>
 
-<div class="day">
-    <input type="checkbox" name="online" id={`online-${day}`} on:change={handleChange} checked={defaultOnline}>
-    <label for={`online-${day}`}>Online</label>
-    <input type="text" name="title" placeholder="Title" on:keydown={handleChange}>
-    <input type="text" name="time" placeholder="Time" on:keydown={handleChange}>
-    <input type="number" name="titleCharSpacing" on:keydown={handleChange} value="4" step="0.1">
-</div>
-
-<style>
-    label {
-        user-select: none;
-        -moz-user-select: none;
-        -webkit-user-select: none;
-        -ms-user-select: none;
-    }
-
-    input[name="titleCharSpacing"] {
-        width: 50%;
-    }
-</style>
+<Card class="bg-blue text-light">
+    <CardHeader>
+        <Input type="checkbox" name="online" id={`online-${day}`} label="{day}" on:change={handleChange} checked={online} />
+    </CardHeader>
+    <CardBody class="p-0">
+        <Input type="text" name="title" placeholder="Title" bsSize="sm" on:keydown={handleChange} />
+        <Row noGutters>
+            <Col xs="9">
+                <Input type="text" name="time" placeholder="Time" bsSize="sm" on:keydown={handleChange} />
+            </Col>
+            <Col xs="3">
+                <Input type="number" name="titleCharSpacing" bsSize="sm" on:keydown={handleChange} value="4" step="0.1" />
+            </Col>
+        </Row>
+    </CardBody>
+</Card>

@@ -3,8 +3,8 @@
 
     import { onMount } from "svelte";
 	import InputDay from "../components/InputDay.svelte";
-    import type { InputDayEvent} from "$lib/InputDayEvent";
-    import DateInput from "../components/DateInput.svelte";
+    import type { InputDayEvent } from "$lib/InputDayEvent";
+    import { Button, ButtonGroup, Col, Container, FormGroup, Input, Label, Row } from "sveltestrap";
 
     import imgBase from "$lib/images/base.png";
     import imgOnlineMonday from "$lib/images/online/monday.png";
@@ -41,15 +41,18 @@
         imgElemOffline: HTMLImageElement | null;
     }
 
-    const sampleTitle = 'Sample';
-    const sampleTime = '5PM BST';
+    const sampleTitle = 'TBD';
+    const sampleTime = 'TBD BST';
     const sampleTitleCharSpacing = 4;
 
-    const thisMonday = new Date();
-    thisMonday.setDate(thisMonday.getDate() + 6);//(1 - thisMonday.getDay()));
+    const today = new Date();
+    // yyyy-mm-dd for input[type=date]
+    let todayStr = today.toISOString().split('T')[0];
 
-    // find nearest monday
-    let today: Date = new Date();
+    // default to this week
+    const thisMonday = new Date();
+    thisMonday.setDate(thisMonday.getDate() + (1 - thisMonday.getDay()));
+
     const daysOfWeek: DayOfWeek[] = [
         {
             name: 'Monday',
@@ -114,7 +117,7 @@
             date: new Date(thisMonday.getFullYear(), thisMonday.getMonth(), thisMonday.getDate() + (5 - thisMonday.getDay())),
             dateOffset: [[-1, 0], [0, 0]],
             online: true,
-            coords: [1064, 648],
+            coords: [1065, 648],
             titleCharSpacing: sampleTitleCharSpacing,
             imgOnline: imgOnlineFriday,
             imgOffline: imgOfflineFriday,
@@ -254,22 +257,111 @@
 
         redraw();
     }
+
+    function updateDate(event: Event) {
+        const value = (event.target as HTMLInputElement).value;
+        if (value === '' || value.startsWith('0')) {
+            return;
+        }
+        const date = new Date((event.target as HTMLInputElement).value + 'T00:00:00');
+        let monday: Date;
+        console.log(date.getDay())
+        if (date.getDay() === 1) {
+            monday = date;
+            console.log('day is already monday', date);
+        } else {
+            monday = new Date(date.setDate(date.getDate() - (date.getDay() || 7) + 1));
+            console.log('set to monday', monday);
+        }
+        for (const day of daysOfWeek) {
+            day.date = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + daysOfWeek.indexOf(day));
+        }
+        redraw();
+    }
+
+    function setWeek(date: Date) {
+        let monday: Date;
+        if (date.getDay() === 1) {
+            monday = date;
+        } else {
+            monday = new Date(date.setDate(date.getDate() - (date.getDay() || 7) + 1));
+        }
+        todayStr = monday.toISOString().split('T')[0];
+        for (const day of daysOfWeek) {
+            day.date = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + daysOfWeek.indexOf(day));
+        }
+        redraw();
+    }
+
+    function nextWeek() {
+        const now = today;
+        now.setDate(now.getDate() + 7);
+        setWeek(now);
+    }
+
+    function resetDate() {
+        setWeek(new Date());
+    }
+
+    function copy() {
+        canvas.toBlob(blob => {
+            navigator.clipboard.write([
+                new ClipboardItem({
+                    [blob!.type]: blob!
+                })
+            ]);
+        });
+    }
+
+    function download() {
+        const link = document.createElement('a');
+        link.download = 'schedule.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    }
 </script>
 
 <svelte:head>
     <link rel="stylesheet" href="https://indestructibletype.com/fonts/Jost.css" type="text/css" charset="utf-8" />
 </svelte:head>
 
-<div class="container">
-    <canvas id="canvas" bind:this={canvas}></canvas>
-    <div class="schedule-input">
-        <!-- <input type="date" id="start" name="start" bind:value={todayStr} /> -->
-        <DateInput bind:date={today} />
-        {#each daysOfWeek as day}
-            <InputDay day={day.name} on:message={inputDayHandler} defaultOnline={day.online} />
-        {/each}
-    </div>
-</div>
+<Row>
+    <Col xs="10">
+        <canvas id="canvas" bind:this={canvas}></canvas>
+    </Col>
+    <Col xs="2">
+        <div class="schedule-input">
+            <Row noGutters>
+                <Col xs="6">
+                    <Input type="date" name="start" id="start" on:change={updateDate} bind:value={todayStr} bsSize="sm" />
+                </Col>
+                <Col xs="6">
+                    <Row>
+                        <Col>
+                            <ButtonGroup class="d-flex">
+                                <Button color="secondary" size="sm" on:click={nextWeek}>Next Week</Button>
+                                <Button color="danger" size="sm" on:click={resetDate}>Reset</Button>
+                            </ButtonGroup>
+                        </Col>
+                    </Row>
+                </Col>
+            </Row>
+            <Row noGutters>
+                <Col>
+                    <ButtonGroup class="d-flex">
+                        <Button color="primary" size="sm" on:click={redraw}>Redraw</Button>
+                        <Button color="success" size="sm" on:click={copy}>Copy</Button>
+                        <Button color="success" size="sm" on:click={download}>Download</Button>
+                    </ButtonGroup>
+                </Col>
+            </Row>
+            <!-- <input type="date" id="start" name="start" value={todayStr} on:change={updateDate} /> -->
+            {#each daysOfWeek as day}
+                <InputDay day={day.name} on:message={inputDayHandler} bind:online={day.online} />
+            {/each}
+        </div>
+    </Col>
+</Row>
 
 <div class="assets">
     <img src="{imgBase}" bind:this={imgElemBase} alt="NeuroSchedule Base" width="1920px" height="1080px">
@@ -282,31 +374,47 @@
 <style>
 :global(body) {
     background: #1F1F4F;
-    color: #DEDEDE;
-    padding: 10px;
+    /* color: #DEDEDE; */
+    padding: 25px;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
 }
 
-.container {
-    position: relative;
+:global(.form-check-label, .form-label) {
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
 
-    width: 100%;
+:global(.card-title .form-check .form-check-label) {
+    margin-top: 2px;
+}
+
+:global(  input::-webkit-calendar-picker-indicator) {
+    cursor: pointer;
+}
+
+:global(.btn:focus, .btn:active:focus, .btn.active:focus) {
+    outline: none !important;
+    box-shadow: none;
+}
+
+:global(.bg-blue) {
+    background-color: #3F3F8F;
 }
 
 #canvas {
     background: #2F2F5F;
     border: 2px solid #000000;
 
-    width: 80%;
+    width: 100%;
 }
 
 .schedule-input {
     display: flex;
     flex-direction: column;
-    width: 200px;
     gap: 10px;
-    float: right;
 }
 
 .assets {

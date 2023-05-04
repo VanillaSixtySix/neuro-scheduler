@@ -10,7 +10,7 @@ const config = {
 	kit: {
 		adapter: adapter(),
 		paths: {
-			base: '/neuro-scheduler'
+			base: process.env.NODE_ENV === 'production' ? '/neuro-scheduler' : '',
 		}
 	}
 };

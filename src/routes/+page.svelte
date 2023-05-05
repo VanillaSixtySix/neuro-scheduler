@@ -356,7 +356,7 @@
 }
 
 :global(.tab-pane) {
-    display: flex;
+    display: flex !important;
     flex-direction: column;
     padding-top: 5px;
     gap: 5px;

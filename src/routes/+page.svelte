@@ -355,7 +355,7 @@
     color: #FFFFFF;
 }
 
-:global(.tab-pane) {
+:global(.tab-pane.active) {
     display: flex !important;
     flex-direction: column;
     padding-top: 5px;

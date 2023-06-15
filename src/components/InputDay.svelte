@@ -2,14 +2,21 @@
     import type { InputDayEvent } from "$lib/InputDayEvent";
     import { createEventDispatcher } from "svelte";
     import { Card, CardBody, CardHeader, CardTitle, Col, FormGroup, Input, Label, Row } from "sveltestrap";
+    import { getDayWithOffset } from "$lib/DateUtils";
 
     export const dispatch = createEventDispatcher();
 
-    export let day = '';
+    export let startDate: Date = new Date();
+    export let offset = 0;
     export let online: boolean;
+    let day = '';
+
+    $: (function () {
+        day = getDayWithOffset(startDate, offset, false);
+    })();
 
     function handleChange(event: any) {
-        const message: Partial<InputDayEvent> = { day }
+        const message: Partial<InputDayEvent> = { offset };
         const valueBefore = event.target.value;
         setTimeout(() => {
             // if input type is text, if value is the same, return
@@ -35,7 +42,7 @@
 
 <Card class="bg-blue text-light">
     <CardHeader>
-        <Input type="checkbox" name="online" id={`online-${day}`} label="{day}" on:change={handleChange} checked={online} />
+        <Input type="checkbox" name="online" id={`online-${offset}`} bind:label={day} on:change={handleChange} checked={online} />
     </CardHeader>
     <CardBody class="p-0">
         <Input type="text" name="title" placeholder="Title" bsSize="sm" on:keydown={handleChange} />

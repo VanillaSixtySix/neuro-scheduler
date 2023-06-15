@@ -5,3 +5,18 @@
     font-style: normal;
     font-display: swap;
 }
+
+@font-face {
+    font-family: 'Engravers MT 100';
+    src: url('ENGR.TTF') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Larissa';
+    src: url('Larissa.ttf') format('truetype');
+    font-style: normal;
+    font-display: swap;
+}

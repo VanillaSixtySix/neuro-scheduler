@@ -1,8 +1,7 @@
 export interface InputDayEvent {
-    day: string;
+    offset: number;
     online?: boolean;
     title?: string;
-    date?: string;
     time?: string;
     titleCharSpacing?: number;
 }

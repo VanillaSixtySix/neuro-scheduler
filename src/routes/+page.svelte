@@ -3,60 +3,127 @@
 	import { base } from "$app/paths";
 	import InputDay from "../components/InputDay.svelte";
     import type { InputDayEvent } from "$lib/InputDayEvent";
-    import { Button, ButtonGroup, Col, Container, FormGroup, Input, Label, Row, TabContent, TabPane } from "sveltestrap";
+    import { Button, ButtonGroup, Col, Input, Row, TabContent, TabPane } from "sveltestrap";
+    import { getDateStr, getDateWithOffset, getDayWithOffset, getMonday } from "$lib/DateUtils";
+    import ScheduleEntry from "$lib/ScheduleEntry";
 
     let imgElemBase: HTMLImageElement;
+    // TODO: Clean this up
+    let imgElemOnline1: HTMLImageElement;
+    let imgElemOnline2: HTMLImageElement;
+    let imgElemOnline3: HTMLImageElement;
+    let imgElemOnline4: HTMLImageElement;
+    let imgElemOnline5: HTMLImageElement;
+    let imgElemOnline6: HTMLImageElement;
+    let imgElemOnline7: HTMLImageElement;
+    let imgElemOffline1: HTMLImageElement;
+    let imgElemOffline2: HTMLImageElement;
+    let imgElemOffline3: HTMLImageElement;
+    let imgElemOffline4: HTMLImageElement;
+    let imgElemOffline5: HTMLImageElement;
+    let imgElemOffline6: HTMLImageElement;
+    let imgElemOffline7: HTMLImageElement;
 
     let canvas: HTMLCanvasElement;
 
-    class DayOfWeek {
-        name: string;
-        title: string;
-        time: string;
-        date: Date;
-        dateOffset: [[number, number], [number, number]];
-        online: boolean;
-        coords: [number, number];
-        titleCharSpacing: number;
-        imgOnline: string;
-        imgOffline: string;
-        imgElemOnline: HTMLImageElement | null;
-        imgElemOffline: HTMLImageElement | null;
-
-        constructor(name: string, dateOffset: number, dateStrOffset: [[number, number], [number, number]], coords: [number, number]) {
-            this.name = name;
-            this.title = 'TBD';
-            this.time = 'TBD BST';
-            this.date = new Date(thisMonday.getFullYear(), thisMonday.getMonth(), thisMonday.getDate() + dateOffset);
-            this.dateOffset = dateStrOffset;
-            this.online = true;
-            this.coords = coords;
-            this.titleCharSpacing = 4;
-            this.imgOnline = base + '/images/online/' + name.toLowerCase() + '.png';
-            this.imgOffline = base + '/images/offline/' + name.toLowerCase() + '.png';
-            this.imgElemOnline = null;
-            this.imgElemOffline = null;
+    const offsets = [
+        {
+            dayOffset: [50, 35],
+            daySpacing: 7,
+            dateOffset: [[0, 0], [0, 0]],
+            coords: [1192, 78],
+        },
+        {
+            dayOffset: [56, 34],
+            daySpacing: 7,
+            dateOffset: [[0, 0], [0, 0]],
+            coords: [1160, 221],
+        },
+        {
+            dayOffset: [51, 35],
+            daySpacing: 5.6,
+            dateOffset: [[-1, -1], [-1, -1]],
+            coords: [1128, 363],
+        },
+        {
+            dayOffset: [55, 35],
+            daySpacing: 5,
+            dateOffset: [[-2, 0], [0, -1]],
+            coords: [1096, 505],
+        },
+        {
+            dayOffset: [65, 35],
+            daySpacing: 5.6,
+            dateOffset: [[-1, 0], [0, 0]],
+            coords: [1065, 647],
+        },
+        {
+            dayOffset: [63, 35],
+            daySpacing: 2,
+            dateOffset: [[0, 0], [0, 0]],
+            coords: [1034, 789]
+        },
+        {
+            dayOffset: [59, 35],
+            daySpacing: 5,
+            dateOffset: [[2, 0], [0, -1]],
+            coords: [1004, 933],
         }
-    }
+    ];
 
-    const today = new Date();
-    // input[type="date"] requires YYYY-MM-DD
-    let todayStr = today.toISOString().split('T')[0];
+    // This is necessary due to spacing between certain letters like S and A
+    // Contains two element arrays of # of pixels between each letter
+    const dayLetterOffsets = {
+        MON: [7, 7],
+        TUE: [7, 7],
+        WED: [5.6, 5.6],
+        THU: [5, 5],
+        FRI: [5.6, 5.6],
+        SAT: [2, -2],
+        SUN: [5, 5],
+    };
+
+    // Width of container for day of week text
+    const dayContainerWidth = 208;
+
+    // Text colors, emulating gradient from top -> bottom
+    const dayTextColors = {
+        online: [
+            '#5F004D',
+            '#60004B',
+            '#600047',
+            '#630044',
+            '#65003D',
+            '#690038',
+            '#6A0031',
+        ],
+        offline: [
+            '#F949ED',
+            '#F949E9',
+            '#F948E3',
+            '#FA46DD',
+            '#FB47D1',
+            '#FC45C2',
+            '#FD43B3',
+        ],
+    };
+
+    let startDate = getMonday(new Date());
+    // Doing this because toISOString() converts to UTC
+    let todayStr = getDateStr(startDate);
 
     // default to this week
-    const thisMonday = new Date();
-    thisMonday.setDate(thisMonday.getDate() + (1 - thisMonday.getDay()));
+    const weekStart = new Date();
+    weekStart.setDate(weekStart.getDate() + (1 - weekStart.getDay()));
 
-    let discordTimestamps = 'TODO';
-
-    const daysOfWeek: DayOfWeek[] = [
-        new DayOfWeek('Monday', 0, [[0, 0], [0, 0]], [1192, 78]),
-        new DayOfWeek('Tuesday', 1, [[0, 0], [0, 0]], [1160, 221]),
-        new DayOfWeek('Wednesday', 2, [[-1, -1], [-1, -1]], [1128, 363]),
-        new DayOfWeek('Thursday', 3, [[-2, 0], [0, -1]], [1096, 505]),
-        new DayOfWeek('Friday', 4, [[-1, 0], [0, 0]], [1065, 647]),
-        new DayOfWeek('Saturday', 5, [[0, 0], [0, 0]], [1034, 789]),
-        new DayOfWeek('Sunday', 6, [[2, 0], [0, -1]], [1004, 933])
+    let scheduleEntries: ScheduleEntry[] = [
+        new ScheduleEntry(),
+        new ScheduleEntry(),
+        new ScheduleEntry(),
+        new ScheduleEntry(),
+        new ScheduleEntry(),
+        new ScheduleEntry(),
+        new ScheduleEntry(),
     ];
 
     let ctx: CanvasRenderingContext2D;
@@ -65,15 +132,18 @@
         ctx.clearRect(0, 0, canvas!.width, canvas!.height);
         ctx.drawImage(imgElemBase, 0, 0);
 
-        for (const day of daysOfWeek) {
-            ctx?.drawImage(day.online ? day.imgElemOnline! : day.imgElemOffline!, day.coords[0], day.coords[1]);
-            if (day.online) {
-                drawTitle(day);
-                drawTime(day);
+        for (let i = 0; i < scheduleEntries.length; i++) {
+            const entry = scheduleEntries[i];
+            const offset = offsets[i];
+            ctx?.drawImage(entry.online ? eval('imgElemOnline' + (i + 1))! : eval('imgElemOffline' + (i + 1))!, offset.coords[0], offset.coords[1]);
+            if (entry.online) {
+                drawTitle(i, entry);
+                drawTime(i, entry);
             } else {
-                drawOffline(day);
+                drawOffline(i);
             }
-            drawDayOfMonth(day);
+            drawDayOfMonth(i, entry);
+            drawDayOfWeek(i, entry);
         }
     }
 
@@ -87,28 +157,28 @@
 
         // Slight delay to hopefully allow fonts to load
         setTimeout(() => {
-            updateTimestamps();
+            // updateTimestamps();
             redraw();
         }, 500);
     });
 
-    function drawTitle(day: DayOfWeek) {
-        let x = day.coords[0] + 265;
-        const y = day.coords[1] + 25;
-        const text = day.title;
+    function drawTitle(i: number, entry: ScheduleEntry) {
+        let x = offsets[i].coords[0] + 265;
+        const y = offsets[i].coords[1] + 25;
+        const text = entry.title;
         ctx.font = "700 18pt Jost";
         ctx.textBaseline = "hanging";
         ctx.fillStyle = "#FFFFFF";
         for (let char of text) {
             ctx.fillText(char, x, y);
-            x += ctx.measureText(char).width + day.titleCharSpacing;
+            x += ctx.measureText(char).width + entry.titleCharSpacing;
         }
     }
 
-    function drawTime(day: DayOfWeek) {
-        let x = day.coords[0] + 266;
-        const y = day.coords[1] + 56;
-        const text = day.time;
+    function drawTime(i: number, entry: ScheduleEntry) {
+        let x = offsets[i].coords[0] + 266;
+        const y = offsets[i].coords[1] + 56;
+        const text = entry.time;
         ctx.font = "700 14pt Jost";
         ctx.textBaseline = "hanging";
         ctx.fillStyle = "#3C0036";
@@ -118,9 +188,9 @@
         }
     }
 
-    function drawOffline(day: DayOfWeek) {
-        let x = day.coords[0] + 265;
-        const y = day.coords[1] + 38;
+    function drawOffline(i: number) {
+        let x = offsets[i].coords[0] + 265;
+        const y = offsets[i].coords[1] + 38;
         const text = 'OFFLINE';
         ctx.font = "700 18pt Jost";
         ctx.textBaseline = "hanging";
@@ -131,10 +201,10 @@
         }
     }
 
-    function drawDayOfMonth(day: DayOfWeek) {
-        const x = daysOfWeek.indexOf(day) * -10 + 1418 + day.dateOffset[0][0];
-        const y = day.coords[1] + 25 + day.dateOffset[0][1];
-        const text = day.date
+    function drawDayOfMonth(i: number, entry: ScheduleEntry) {
+        const x = scheduleEntries.indexOf(entry) * -10 + 1418 + offsets[i].dateOffset[0][0];
+        const y = offsets[i].coords[1] + 25 + offsets[i].dateOffset[0][1];
+        const text = getDateWithOffset(startDate, i)
             .getDate()
             .toString()
             .padStart(2, '0')
@@ -144,16 +214,48 @@
         ctx.fillStyle = "#FFFFFF";
         ctx.setTransform(1, 0, -0.15, 1, 0, 0);
         ctx.fillText(text[0], x, y);
-        ctx.fillText(text[1], x + day.dateOffset[1][0], y + 29 + day.dateOffset[1][1]);
+        ctx.fillText(text[1], x + offsets[i].dateOffset[1][0], y + 29 + offsets[i].dateOffset[1][1]);
         ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
 
+    function drawDayOfWeek(i: number, entry: ScheduleEntry) {
+        const y = offsets[i].coords[1] + offsets[i].dayOffset[1];
+        const text = getDayWithOffset(startDate, i, true);
+        // TODO: Update with the proper font
+        ctx.font = "400 27pt 'Larissa'";
+        // TODO: Change if online/offline and based on offset
+        if (entry.online) {
+            ctx.fillStyle = dayTextColors.online[i];
+        } else {
+            ctx.fillStyle = dayTextColors.offline[i];
+        }
+        const dayLetterOffset = dayLetterOffsets[text];
+        // Before rendering, calculate initial X offset
+        //  based on (dayContainerWidth / 2) - (rendered text / 2)
+        let renderedTextSize = 0;
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            renderedTextSize += ctx.measureText(char).width + (dayLetterOffset[i] || 0);
+        }
+        let x = offsets[i].coords[0] + ((dayContainerWidth / 2) - (renderedTextSize / 2));
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            ctx.fillText(char, x, y);
+            x += ctx.measureText(char).width + (dayLetterOffset[i] || 0);
+        }
+        // for (let char of text) {
+        //     ctx.fillText(char, x, y);
+        //     x += ctx.measureText(char).width + offsets[i].daySpacing;
+        // }
+        // ctx.fillText(text, x, y);
+    }
+
     function inputDayHandler(event: CustomEvent<InputDayEvent>) {
-        let { day, online, title, time, titleCharSpacing } = event.detail;
+        let { offset, online, title, time, titleCharSpacing } = event.detail;
 
-        const dayOfWeek = daysOfWeek.find(d => d.name === day)!;
+        const dayOfWeek = scheduleEntries[offset];
 
-        if (online != null) {
+        if (typeof online === 'boolean') {
             dayOfWeek.online = online;
         }
         if (title != null) {
@@ -161,7 +263,6 @@
         }
         if (time != null) {
             dayOfWeek.time = time;
-            setTimeForValidStrings();
         }
         if (titleCharSpacing != null) {
             dayOfWeek.titleCharSpacing = titleCharSpacing;
@@ -175,40 +276,25 @@
         if (value === '' || value.startsWith('0')) {
             return;
         }
-        const date = new Date((event.target as HTMLInputElement).value + 'T00:00:00');
-        let monday: Date;
-        console.log(date.getDay())
-        if (date.getDay() === 1) {
-            monday = date;
-            console.log('day is already monday', date);
-        } else {
-            monday = new Date(date.setDate(date.getDate() - (date.getDay() || 7) + 1));
-            console.log('set to monday', monday);
-        }
-        for (const day of daysOfWeek) {
-            day.date = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + daysOfWeek.indexOf(day));
-        }
+        // const date = new Date((event.target as HTMLInputElement).value + 'T00:00:00');
+        startDate = new Date((event.target as HTMLInputElement).value + 'T00:00:00');
         redraw();
     }
 
-    function setWeek(date: Date) {
-        let monday: Date;
-        if (date.getDay() === 1) {
-            monday = date;
-        } else {
-            monday = new Date(date.setDate(date.getDate() - (date.getDay() || 7) + 1));
-        }
-        todayStr = monday.toISOString().split('T')[0];
-        for (const day of daysOfWeek) {
-            day.date = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + daysOfWeek.indexOf(day));
-        }
-        setTimeForValidStrings();
-        updateTimestamps();
+    function setWeek(date: Date, useMonday = false) {
+        startDate = useMonday ? getMonday(date) : date;
+        todayStr = getDateStr(startDate);
+        redraw();
+    }
+
+    function today() {
+        startDate = new Date();
+        todayStr = getDateStr(startDate);
         redraw();
     }
 
     function nextWeek() {
-        const now = today;
+        const now = new Date(startDate.getTime());
         now.setDate(now.getDate() + 7);
         setWeek(now);
     }
@@ -217,13 +303,22 @@
         setWeek(new Date());
     }
 
+    let copyText = 'Copy';
     function copy() {
+        copyText = 'Copying...';
         canvas.toBlob(blob => {
             navigator.clipboard.write([
                 new ClipboardItem({
                     [blob!.type]: blob!
                 })
             ]);
+            // For some reason, copying takes a little longer than when this returns
+            setTimeout(() => {
+                copyText = 'Copied!';
+            }, 1000);
+            setTimeout(() => {
+                copyText = 'Copy';
+            }, 3000);
         });
     }
 
@@ -233,39 +328,10 @@
         link.href = canvas.toDataURL();
         link.click();
     }
-
-    function setTimeForValidStrings() {
-        const regex = /^(\d{1,2})(?::(\d{2}))?\s*([AP]M)\s*([A-Z]{2,4})?$/i;
-
-        for (const day of daysOfWeek) {
-            const match = day.time.match(regex);
-
-            console.log(day.time, match);
-
-            if (match) {
-                const hour = parseInt(match[1], 10);
-                const minute = match[2] ? parseInt(match[2], 10) : 0;
-                const isPm = match[3].toLowerCase() === 'pm';
-
-                // Check if hour and minute are valid
-                if (hour >= 1 && hour <= 12 && minute >= 0 && minute <= 59) {
-                    const newHour = isPm && hour !== 12 ? hour + 12 : (hour === 12 && !isPm) ? 0 : hour;
-                    console.log(newHour, minute);
-                    day.date.setHours(newHour, minute, 0, 0);
-                }
-            }
-        }
-    }
-
-    function updateTimestamps() {
-        // Update discordTimestamps with each day's date on a new line in the format <t:TIMESTAMP:F>
-        const timestamps = daysOfWeek.map(day => `<t:${Math.floor(day.date.getTime() / 1000)}:F>`);
-        discordTimestamps = timestamps.join('\n');
-    }
 </script>
 
 <svelte:head>
-    <link rel="stylesheet" href="https://indestructibletype.com/fonts/Jost.css" type="text/css" charset="utf-8" />
+    <link rel="stylesheet" href="https://indestructibletype.com/fonts/Jost.css" type="text/css" />
 </svelte:head>
 
 <div class="outer-container">
@@ -274,14 +340,15 @@
         <TabContent>
             <TabPane tabId="main" tab="Main" active>
                 <Row noGutters>
-                    <Col xs="6">
+                    <Col xs="5">
                         <Input type="date" name="start" id="start" on:change={updateDate} bind:value={todayStr} bsSize="sm" />
                     </Col>
-                    <Col xs="6">
+                    <Col xs="7">
                         <Row>
                             <Col>
                                 <ButtonGroup class="d-flex">
-                                    <Button color="secondary" size="sm" on:click={nextWeek}>Next Week</Button>
+                                    <Button color="primary" size="sm" on:click={today}>Today</Button>
+                                    <Button color="secondary" size="sm" on:click={nextWeek}>Week++</Button>
                                     <Button color="danger" size="sm" on:click={resetDate}>Reset</Button>
                                 </ButtonGroup>
                             </Col>
@@ -292,19 +359,22 @@
                     <Col>
                         <ButtonGroup class="d-flex">
                             <Button color="primary" size="sm" on:click={redraw}>Redraw</Button>
-                            <Button color="success" size="sm" on:click={copy}>Copy</Button>
+                            <Button color="success" size="sm" on:click={copy}>{copyText}</Button>
                             <Button color="success" size="sm" on:click={download}>Download</Button>
                         </ButtonGroup>
                     </Col>
                 </Row>
                 <!-- <input type="date" id="start" name="start" value={todayStr} on:change={updateDate} /> -->
-                {#each daysOfWeek as day}
-                    <InputDay day={day.name} on:message={inputDayHandler} bind:online={day.online} />
+                {#each scheduleEntries as entry, i}
+                    <InputDay bind:startDate={startDate} offset={i} on:message={inputDayHandler} bind:online={entry.online} />
                 {/each}
             </TabPane>
-            <TabPane tabId="discord" tab="Discord" disabled>
-                <h3>Discord Schedule Maker</h3>
-                <Input type="textarea" name="discord" id="discord-timestamps" readonly bind:value={discordTimestamps} rows={7} />
+            <TabPane tabId="message" tab="💜">
+                <div class="boccher">
+                    <div class="blue"></div>
+                    <div class="yellow"></div>
+                </div>
+                <img src="{base}/images/nuero.gif" width="350px" height="350px" alt="nuero" />
             </TabPane>
         </TabContent>
     </div>
@@ -312,10 +382,20 @@
 
 <div class="assets">
     <img src="{base}/images/base.png" bind:this={imgElemBase} alt="NeuroSchedule Base" width="1920px" height="1080px">
-    {#each daysOfWeek as day}
-        <img src="{day.imgOnline}" bind:this={day.imgElemOnline} alt="NeuroSchedule Online {day.name}">
-        <img src="{day.imgOffline}" bind:this={day.imgElemOffline} alt="NeuroSchedule Offline {day.name}">
-    {/each}
+    <img src="{base}/images/online/1.png" bind:this={imgElemOnline1} alt="NeuroSchedule Online 1">
+    <img src="{base}/images/online/2.png" bind:this={imgElemOnline2} alt="NeuroSchedule Online 2">
+    <img src="{base}/images/online/3.png" bind:this={imgElemOnline3} alt="NeuroSchedule Online 3">
+    <img src="{base}/images/online/4.png" bind:this={imgElemOnline4} alt="NeuroSchedule Online 4">
+    <img src="{base}/images/online/5.png" bind:this={imgElemOnline5} alt="NeuroSchedule Online 5">
+    <img src="{base}/images/online/6.png" bind:this={imgElemOnline6} alt="NeuroSchedule Online 6">
+    <img src="{base}/images/online/7.png" bind:this={imgElemOnline7} alt="NeuroSchedule Online 7">
+    <img src="{base}/images/offline/1.png" bind:this={imgElemOffline1} alt="NeuroSchedule Offline 1">
+    <img src="{base}/images/offline/2.png" bind:this={imgElemOffline2} alt="NeuroSchedule Offline 2">
+    <img src="{base}/images/offline/3.png" bind:this={imgElemOffline3} alt="NeuroSchedule Offline 3">
+    <img src="{base}/images/offline/4.png" bind:this={imgElemOffline4} alt="NeuroSchedule Offline 4">
+    <img src="{base}/images/offline/5.png" bind:this={imgElemOffline5} alt="NeuroSchedule Offline 5">
+    <img src="{base}/images/offline/6.png" bind:this={imgElemOffline6} alt="NeuroSchedule Offline 6">
+    <img src="{base}/images/offline/7.png" bind:this={imgElemOffline7} alt="NeuroSchedule Offline 7">
 </div>
 
 <style>
@@ -411,5 +491,31 @@
 
 .assets {
     display: none;
+}
+
+.boccher {
+    position: relative;
+    height: 0;
+    transform: translate(100px, 80px);
+    filter: blur(5px);
+}
+
+.boccher > div {
+    width: 30px;
+    height: 30px;
+}
+
+.boccher .blue {
+    background: #4786A9;
+    border: 5px solid #78D2EC;
+    border-radius: 3px;
+    transform: translate(3px, -5px) rotateZ(20deg);
+}
+
+.boccher .yellow {
+    background: #A48F3E;
+    border: 5px solid #E9D757;
+    border-radius: 3px;
+    transform: rotateZ(5deg);
 }
 </style>

@@ -331,6 +331,10 @@
 
 <svelte:head>
     <link rel="stylesheet" href="https://indestructibletype.com/fonts/Jost.css" type="text/css" />
+
+    <meta property="og:title" content="Neuro Schedule Maker">
+    <meta property="og:description" content="Simple tool for making schedule images for Neuro-sama.">
+    <meta property="og:image" content="https://flyingsixtysix.github.io/neuro-scheduler/images/schedule.png">
 </svelte:head>
 
 <div class="outer-container">

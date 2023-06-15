@@ -157,7 +157,6 @@
 
         // Slight delay to hopefully allow fonts to load
         setTimeout(() => {
-            // updateTimestamps();
             redraw();
         }, 500);
     });
@@ -266,7 +265,7 @@
         }
         if (titleCharSpacing != null) {
             dayOfWeek.titleCharSpacing = titleCharSpacing;
-        } 
+        }
 
         redraw();
     }
@@ -300,7 +299,7 @@
     }
 
     function resetDate() {
-        setWeek(new Date());
+        setWeek(new Date(), true);
     }
 
     let copyText = 'Copy';
@@ -347,9 +346,9 @@
                         <Row>
                             <Col>
                                 <ButtonGroup class="d-flex">
-                                    <Button color="primary" size="sm" on:click={today}>Today</Button>
-                                    <Button color="secondary" size="sm" on:click={nextWeek}>Week++</Button>
-                                    <Button color="danger" size="sm" on:click={resetDate}>Reset</Button>
+                                    <Button color="primary" size="sm" on:click={today} title="Changes the starting date to today">Today</Button>
+                                    <Button color="secondary" size="sm" on:click={nextWeek} title="Adds a week to the starting date">Week++</Button>
+                                    <Button color="danger" size="sm" on:click={resetDate} title="Resets the starting date to this Monday">Reset</Button>
                                 </ButtonGroup>
                             </Col>
                         </Row>
@@ -358,9 +357,9 @@
                 <Row noGutters>
                     <Col>
                         <ButtonGroup class="d-flex">
-                            <Button color="primary" size="sm" on:click={redraw}>Redraw</Button>
-                            <Button color="success" size="sm" on:click={copy}>{copyText}</Button>
-                            <Button color="success" size="sm" on:click={download}>Download</Button>
+                            <Button color="primary" size="sm" on:click={redraw} title="Redraws the canvas (use if fonts are weird)">Redraw</Button>
+                            <Button color="success" size="sm" on:click={copy} title="Copies the rendered canvas to clipboard">{copyText}</Button>
+                            <Button color="success" size="sm" on:click={download} title="Downloads the rendered canvas">Download</Button>
                         </ButtonGroup>
                     </Col>
                 </Row>

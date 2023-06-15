@@ -10,6 +10,8 @@
     export let offset = 0;
     export let online: boolean;
     let day = '';
+    // Variable so we can bind and handle changes live w/o need for blur
+    let titleCharSpacing = 4;
 
     $: (function () {
         day = getDayWithOffset(startDate, offset, false);
@@ -38,6 +40,8 @@
             dispatch('message', message);
         });
     }
+
+    $: titleCharSpacing, handleChange({ target: { name: 'titleCharSpacing', value: titleCharSpacing } });
 </script>
 
 <Card class="bg-blue text-light">
@@ -51,7 +55,7 @@
                 <Input type="text" name="time" placeholder="Time" bsSize="sm" on:keydown={handleChange} />
             </Col>
             <Col xs="3">
-                <Input type="number" name="titleCharSpacing" bsSize="sm" on:keydown={handleChange} value="4" step="0.1" />
+                <Input type="number" name="titleCharSpacing" bsSize="sm" bind:value={titleCharSpacing} step="0.1" title="Title character spacing" />
             </Col>
         </Row>
     </CardBody>

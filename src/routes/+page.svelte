@@ -85,6 +85,7 @@
 
     // Width of container for day of week text
     const dayContainerWidth = 208;
+    const dayContainerHeight = 101;
 
     // Text colors, emulating gradient from top -> bottom
     const dayTextColors = {
@@ -218,7 +219,6 @@
     }
 
     function drawDayOfWeek(i: number, entry: ScheduleEntry) {
-        const y = offsets[i].coords[1] + offsets[i].dayOffset[1];
         const text = getDayWithOffset(startDate, i, true);
         // TODO: Update with the proper font
         ctx.font = "400 27pt 'Larissa'";
@@ -228,7 +228,7 @@
         } else {
             ctx.fillStyle = dayTextColors.offline[i];
         }
-        const dayLetterOffset = dayLetterOffsets[text];
+        const dayLetterOffset = dayLetterOffsets[text as keyof typeof dayLetterOffsets];
         // Before rendering, calculate initial X offset
         //  based on (dayContainerWidth / 2) - (rendered text / 2)
         let renderedTextSize = 0;
@@ -237,6 +237,7 @@
             renderedTextSize += ctx.measureText(char).width + (dayLetterOffset[i] || 0);
         }
         let x = offsets[i].coords[0] + ((dayContainerWidth / 2) - (renderedTextSize / 2));
+        let y = offsets[i].coords[1] + ((dayContainerHeight / 2) - (27 / 2) - 2);
         for (let i = 0; i < text.length; i++) {
             const char = text[i];
             ctx.fillText(char, x, y);

@@ -389,7 +389,10 @@
                     <InputDay bind:startDate={startDate} offset={i} on:message={inputDayHandler} bind:online={entry.online} />
                 {/each}
             </TabPane>
-            <TabPane tabId="message" tab="💜">
+            <TabPane tabId="message" tab="💜 v1.0.0">
+                <span>Made with 💜 by <span class="name"><span class="vanilla">Vanilla</span>SixtySix</span></span>
+                <span>Stream schedule image base by <a href="https://twitter.com/Frequence_">fFrequence</a></span>
+                <span>Watch Bocchi the Rock!</span>
                 <div class="boccher">
                     <div class="blue"></div>
                     <div class="yellow"></div>
@@ -425,6 +428,14 @@
     -webkit-font-smoothing: antialiased;
     width: 100vw;
     height: 100vh;
+}
+
+:global(a) {
+    color: #AAAAFF;
+}
+
+:global(a:hover) {
+    color: #CCCCFF;
 }
 
 :global(.form-check-label, .form-label) {
@@ -511,6 +522,14 @@
 
 .assets {
     display: none;
+}
+
+.name {
+    color: #DD88DD;
+}
+
+.vanilla {
+    color: #FFBBFF;
 }
 
 .boccher {

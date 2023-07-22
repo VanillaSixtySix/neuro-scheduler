@@ -6,6 +6,7 @@
     import { Button, ButtonGroup, Col, Input, Row, TabContent, TabPane } from "sveltestrap";
     import { getDateStr, getDateWithOffset, getDayWithOffset, getMonday } from "$lib/DateUtils";
     import ScheduleEntry from "$lib/ScheduleEntry";
+    import { browser } from '$app/environment';
 
     let imgElemBase: HTMLImageElement;
     // TODO: Clean this up
@@ -82,6 +83,13 @@
         SAT: [2, -2],
         SUN: [5, 5],
     };
+
+    // Sadly Firefox doesn't support textBaseline = "hanging" so we have to
+    const isFirefox = browser ? navigator.userAgent.indexOf("Firefox") != -1 : false;
+    const firefoxDayLetterOffsets = [0, 10];
+    const firefoxDateOffsets = [-1, 2];
+    const firefoxTitleOffsets = [0, 7];
+    const firefoxTimeOffsets = [0, 5];
 
     // Width of container for day of week text
     const dayContainerWidth = 208;
@@ -163,8 +171,8 @@
     });
 
     function drawTitle(i: number, entry: ScheduleEntry) {
-        let x = offsets[i].coords[0] + 265;
-        const y = offsets[i].coords[1] + 25;
+        let x = offsets[i].coords[0] + 265 + (isFirefox ? firefoxTitleOffsets[0] : 0);
+        const y = offsets[i].coords[1] + 25 + (isFirefox ? firefoxTitleOffsets[1] : 0);
         const text = entry.title;
         ctx.font = "700 18pt Jost";
         ctx.textBaseline = "hanging";
@@ -176,8 +184,8 @@
     }
 
     function drawTime(i: number, entry: ScheduleEntry) {
-        let x = offsets[i].coords[0] + 266;
-        const y = offsets[i].coords[1] + 56;
+        let x = offsets[i].coords[0] + 266 + (isFirefox ? firefoxTimeOffsets[0] : 0);
+        const y = offsets[i].coords[1] + 56 + (isFirefox ? firefoxTimeOffsets[1] : 0);
         const text = entry.time;
         ctx.font = "700 14pt Jost";
         ctx.textBaseline = "hanging";
@@ -202,8 +210,8 @@
     }
 
     function drawDayOfMonth(i: number, entry: ScheduleEntry) {
-        const x = scheduleEntries.indexOf(entry) * -10 + 1418 + offsets[i].dateOffset[0][0];
-        const y = offsets[i].coords[1] + 25 + offsets[i].dateOffset[0][1];
+        const x = scheduleEntries.indexOf(entry) * -10 + 1418 + offsets[i].dateOffset[0][0] + (isFirefox ? firefoxDateOffsets[0] : 0);
+        const y = offsets[i].coords[1] + 25 + offsets[i].dateOffset[0][1] + (isFirefox ? firefoxDateOffsets[1] : 0);
         const text = getDateWithOffset(startDate, i)
             .getDate()
             .toString()
@@ -236,8 +244,8 @@
             const char = text[i];
             renderedTextSize += ctx.measureText(char).width + (dayLetterOffset[i] || 0);
         }
-        let x = offsets[i].coords[0] + ((dayContainerWidth / 2) - (renderedTextSize / 2));
-        let y = offsets[i].coords[1] + ((dayContainerHeight / 2) - (27 / 2) - 2);
+        let x = offsets[i].coords[0] + ((dayContainerWidth / 2) - (renderedTextSize / 2)) + (isFirefox ? firefoxDayLetterOffsets[0] : 0);
+        let y = offsets[i].coords[1] + ((dayContainerHeight / 2) - (27 / 2) - 2) + (isFirefox ? firefoxDayLetterOffsets[1] : 0);
         for (let i = 0; i < text.length; i++) {
             const char = text[i];
             ctx.fillText(char, x, y);
@@ -304,21 +312,29 @@
     }
 
     let copyText = 'Copy';
+    if (isFirefox) copyText = 'Copying unavailabile';
     function copy() {
         copyText = 'Copying...';
+        const copied = () => {
+            copyText = 'Copied!';
+            setTimeout(() => {
+                copyText = 'Copy';
+            }, 3000);
+        };
+        const copyFailed = () => {
+            copyText = 'Error :(';
+            setTimeout(() => {
+                copyText = 'Copy';
+            }, 3000);
+        };
         canvas.toBlob(blob => {
             navigator.clipboard.write([
                 new ClipboardItem({
                     [blob!.type]: blob!
                 })
-            ]);
-            // For some reason, copying takes a little longer than when this returns
-            setTimeout(() => {
-                copyText = 'Copied!';
-            }, 1000);
-            setTimeout(() => {
-                copyText = 'Copy';
-            }, 3000);
+            ])
+            .then(copied)
+            .catch(copyFailed);
         });
     }
 
@@ -363,7 +379,7 @@
                     <Col>
                         <ButtonGroup class="d-flex">
                             <Button color="primary" size="sm" on:click={redraw} title="Redraws the canvas (use if fonts are weird)">Redraw</Button>
-                            <Button color="success" size="sm" on:click={copy} title="Copies the rendered canvas to clipboard">{copyText}</Button>
+                            <Button color="success" size="sm" on:click={copy} disabled={isFirefox} title="Copies the rendered canvas to clipboard">{copyText}</Button>
                             <Button color="success" size="sm" on:click={download} title="Downloads the rendered canvas">Download</Button>
                         </ButtonGroup>
                     </Col>

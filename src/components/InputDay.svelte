@@ -38,7 +38,7 @@
                     break;
             }
             dispatch('message', message);
-        });
+        }, 5);
     }
 
     $: titleCharSpacing, handleChange({ target: { name: 'titleCharSpacing', value: titleCharSpacing } });

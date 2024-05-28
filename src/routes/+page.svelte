@@ -9,7 +9,9 @@
     import { browser } from '$app/environment';
 
     let imgElemBase: HTMLImageElement;
+    let imgElemBaseEvil: HTMLImageElement;
     // TODO: Clean this up
+    // TODO: DEAR GOD IT GOT LONGER
     let imgElemOnline1: HTMLImageElement;
     let imgElemOnline2: HTMLImageElement;
     let imgElemOnline3: HTMLImageElement;
@@ -24,6 +26,21 @@
     let imgElemOffline5: HTMLImageElement;
     let imgElemOffline6: HTMLImageElement;
     let imgElemOffline7: HTMLImageElement;
+
+    let imgElemOnlineEvil1: HTMLImageElement;
+    let imgElemOnlineEvil2: HTMLImageElement;
+    let imgElemOnlineEvil3: HTMLImageElement;
+    let imgElemOnlineEvil4: HTMLImageElement;
+    let imgElemOnlineEvil5: HTMLImageElement;
+    let imgElemOnlineEvil6: HTMLImageElement;
+    let imgElemOnlineEvil7: HTMLImageElement;
+    let imgElemOfflineEvil1: HTMLImageElement;
+    let imgElemOfflineEvil2: HTMLImageElement;
+    let imgElemOfflineEvil3: HTMLImageElement;
+    let imgElemOfflineEvil4: HTMLImageElement;
+    let imgElemOfflineEvil5: HTMLImageElement;
+    let imgElemOfflineEvil6: HTMLImageElement;
+    let imgElemOfflineEvil7: HTMLImageElement;
 
     let canvas: HTMLCanvasElement;
 
@@ -135,16 +152,20 @@
         new ScheduleEntry(),
     ];
 
+    let evilTheme = false;
+
     let ctx: CanvasRenderingContext2D;
 
     function redraw() {
         ctx.clearRect(0, 0, canvas!.width, canvas!.height);
-        ctx.drawImage(imgElemBase, 0, 0);
+        ctx.drawImage(evilTheme ? imgElemBaseEvil : imgElemBase, 0, 0);
 
         for (let i = 0; i < scheduleEntries.length; i++) {
             const entry = scheduleEntries[i];
             const offset = offsets[i];
-            ctx?.drawImage(entry.online ? eval('imgElemOnline' + (i + 1))! : eval('imgElemOffline' + (i + 1))!, offset.coords[0], offset.coords[1]);
+            const toDrawOnline = evilTheme ? eval('imgElemOnlineEvil' + (i + 1))! : eval('imgElemOnline' + (i + 1))!;
+            const toDrawOffline = evilTheme ? eval('imgElemOfflineEvil' + (i + 1))! : eval('imgElemOffline' + (i + 1))!;
+            ctx?.drawImage(entry.online ? toDrawOnline : toDrawOffline, offset.coords[0], offset.coords[1]);
             if (entry.online) {
                 drawTitle(i, entry);
                 drawTime(i, entry);
@@ -344,6 +365,11 @@
         link.href = canvas.toDataURL();
         link.click();
     }
+
+    function handleEvilThemeToggle(event: Event) {
+        evilTheme = (event.target as HTMLInputElement).checked;
+        redraw();
+    }
 </script>
 
 <svelte:head>
@@ -384,6 +410,11 @@
                         </ButtonGroup>
                     </Col>
                 </Row>
+                <Row noGutters>
+                    <Col>
+                        <Input type="checkbox" name="evil" id="evil" label="Evil Theme" on:change={handleEvilThemeToggle} />
+                    </Col>
+                </Row>
                 <!-- <input type="date" id="start" name="start" value={todayStr} on:change={updateDate} /> -->
                 {#each scheduleEntries as entry, i}
                     <InputDay bind:startDate={startDate} offset={i} on:message={inputDayHandler} bind:online={entry.online} />
@@ -405,6 +436,7 @@
 
 <div class="assets">
     <img src="{base}/images/base.png" bind:this={imgElemBase} alt="NeuroSchedule Base" width="1920px" height="1080px">
+    <img src="{base}/images/base-evil.png" bind:this={imgElemBaseEvil} alt="NeuroSchedule Evil Base" width="1920px" height="1080px">
     <img src="{base}/images/online/1.png" bind:this={imgElemOnline1} alt="NeuroSchedule Online 1">
     <img src="{base}/images/online/2.png" bind:this={imgElemOnline2} alt="NeuroSchedule Online 2">
     <img src="{base}/images/online/3.png" bind:this={imgElemOnline3} alt="NeuroSchedule Online 3">
@@ -419,6 +451,20 @@
     <img src="{base}/images/offline/5.png" bind:this={imgElemOffline5} alt="NeuroSchedule Offline 5">
     <img src="{base}/images/offline/6.png" bind:this={imgElemOffline6} alt="NeuroSchedule Offline 6">
     <img src="{base}/images/offline/7.png" bind:this={imgElemOffline7} alt="NeuroSchedule Offline 7">
+    <img src="{base}/images/online/1-evil.png" bind:this={imgElemOnlineEvil1} alt="NeuroSchedule Evil Online 1">
+    <img src="{base}/images/online/2-evil.png" bind:this={imgElemOnlineEvil2} alt="NeuroSchedule Evil Online 2">
+    <img src="{base}/images/online/3-evil.png" bind:this={imgElemOnlineEvil3} alt="NeuroSchedule Evil Online 3">
+    <img src="{base}/images/online/4-evil.png" bind:this={imgElemOnlineEvil4} alt="NeuroSchedule Evil Online 4">
+    <img src="{base}/images/online/5-evil.png" bind:this={imgElemOnlineEvil5} alt="NeuroSchedule Evil Online 5">
+    <img src="{base}/images/online/6-evil.png" bind:this={imgElemOnlineEvil6} alt="NeuroSchedule Evil Online 6">
+    <img src="{base}/images/online/7-evil.png" bind:this={imgElemOnlineEvil7} alt="NeuroSchedule Evil Online 7">
+    <img src="{base}/images/offline/1-evil.png" bind:this={imgElemOfflineEvil1} alt="NeuroSchedule Evil Offline 1">
+    <img src="{base}/images/offline/2-evil.png" bind:this={imgElemOfflineEvil2} alt="NeuroSchedule Evil Offline 2">
+    <img src="{base}/images/offline/3-evil.png" bind:this={imgElemOfflineEvil3} alt="NeuroSchedule Evil Offline 3">
+    <img src="{base}/images/offline/4-evil.png" bind:this={imgElemOfflineEvil4} alt="NeuroSchedule Evil Offline 4">
+    <img src="{base}/images/offline/5-evil.png" bind:this={imgElemOfflineEvil5} alt="NeuroSchedule Evil Offline 5">
+    <img src="{base}/images/offline/6-evil.png" bind:this={imgElemOfflineEvil6} alt="NeuroSchedule Evil Offline 6">
+    <img src="{base}/images/offline/7-evil.png" bind:this={imgElemOfflineEvil7} alt="NeuroSchedule Evil Offline 7">
 </div>
 
 <style>

@@ -6,7 +6,7 @@ export default class ScheduleEntry {
 
     constructor() {
         this.title = 'TBD';
-        this.time = 'TBD BST';
+        this.time = '7PM BST';
         this.online = true;
         this.titleCharSpacing = 4;
     }
